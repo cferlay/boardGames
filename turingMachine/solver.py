@@ -83,12 +83,13 @@ class DecisionTree:
                     group_count = 1
             return length
         paths = self.paths()
-        return sum(aux(path)*prob for path, prob in paths)
+        return (sum(aux(path)*prob for path, prob in paths), sum(len(path)*prob for path, prob in paths), min(len(path) for path, _ in paths))
         
 
-def treeList(criteria: list[Criterion], solutions: list[Solution]):
+def treeList(criteria: list[Criterion], solutions: list[Solution], current_test: int = None):
     all_trees = []
-    for solution in solutions:
+    for solution in [current_test]+solutions:
+        if solution is None: continue
         for c, criterion in enumerate(criteria):
             verificators = [v for v in criterion.verificators if v.test(solution.value)]
             left_solutions = [s for s in solutions if s.verificators[c] in verificators]
@@ -100,11 +101,11 @@ def treeList(criteria: list[Criterion], solutions: list[Solution]):
             if len(list(set(s.value for s in left_solutions))) == 1: #Single option remains: solution found
                 left_trees = [DecisionTree(left_solutions[0].value)]
             else:
-                left_trees = treeList(criteria, left_solutions)
+                left_trees = treeList(criteria, left_solutions, solution)
             if len(list(set(s.value for s in right_solutions))) == 1: #Single option remains: solution found
                 right_trees = [DecisionTree(right_solutions[0].value)]
             else:
-                right_trees = treeList(criteria, right_solutions)
+                right_trees = treeList(criteria, right_solutions, solution)
             for left_tree in left_trees:
                 for right_tree in right_trees:
                     all_trees.append(DecisionTree(solution.value, letters[c], left_tree, right_tree, prob_left, prob_right))
@@ -123,6 +124,8 @@ class Problem:
         n_uniques = 0
         solutions = []
         verificators_lists = [criteria.verificators for criteria in self.criteria]
+        if verbose >= 3:
+            print("\nFINDING UNIQUE SOLUTIONS & ELIMINATING REDUNDANT SOLUTIONS ##########################################################")
         for verificator_combo in product(*verificators_lists):
             valid_sets = [set(v.valid_values) for v in verificator_combo]
             intersection = set.intersection(*valid_sets)
@@ -141,25 +144,36 @@ class Problem:
                 if not redundancy:
                     solutions.append(Solution(verificator_combo, int(list(intersection)[0])))
 
-        if verbose >= 1:
-            print(f"Number of unique solutions: {n_uniques}")
-            print(f"Number of non-redundant solutions: {len(set(solution.value for solution in solutions))} ({', '.join(list(set(str(solution.value) for solution in solutions)))})\n")
-
-        if verbose >= 1:
-            print("Options:")
-            for i in range(len(self.criteria)):
-                print(f"{letters[i]}: {', '.join(list(set(solution.verificators[i].description for solution in solutions)))}")
-            
+        
+        if verbose >= 2:
+            print("\nAVAILABLE SOLUTIONS ##########################################################################################")
             for solution in solutions:
                 print(solution)
+            
+            print("\nCRITERIA OPTIONS ##########################################################################################\n")
+            for i in range(len(self.criteria)):
+                print(f"{letters[i]}: {', '.join(list(set(solution.verificators[i].description for solution in solutions)))}")
+
+            print("\nSOLVING FOR OPTIMAL TREE... \n")
         
         #Build all possible decision trees; choose the one with the least absolute & average depth
         trees = treeList(self.criteria, solutions)
-        trees.sort(key=lambda x: x.score())
+        trees.sort(key=lambda x: (round(x.score()[0], 2), round(x.score()[1], 2), round(x.score()[2], 2))) #Round due to floating point precision errors
+
+        if verbose >= 1:
+            print(f"Number of unique solutions: {n_uniques}")
+            print(f"Number of non-redundant solutions: {len(set(solution.value for solution in solutions))} ({', '.join(list(set(str(solution.value) for solution in solutions)))})")
+            print(f"{len(trees)} trees considered.")
+            
+        print("\nBest decision tree:")
         print(trees[0])
-        print(f"Score: {trees[0].score():.2f}")
+        print(f"Average: {trees[0].score()[0]:.2f} rounds, {trees[0].score()[1]:.2f} tests")
         
+        return trees[0]
+
 
         
 pb = Problem("test", [0, 1, 2, 3, 4])
-pb.solve()
+pb.solve(verbose = 3)
+
+#To solve: When test is false, value is removed from pool, despite the fact that it can still be used for remaining tests
