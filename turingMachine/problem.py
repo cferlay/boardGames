@@ -115,7 +115,10 @@ def treeList(criteria: list[Criterion], solutions: list[Solution], current_test:
 class Problem:
     def __init__(self, id: str, criteria: list[int]):
         self.id = id
-        self.criteria = [all_criteria[i] for i in criteria]
+        self.criteria = [all_criteria[i-1] for i in criteria]
+        print('Problem: ', self.id)
+        for i in range(len(self.criteria)):
+            print(f"{letters[i]}: {self.criteria[i].description}")
 
     def solve(self, verbose = 0):
        
@@ -149,31 +152,24 @@ class Problem:
             print("\nAVAILABLE SOLUTIONS ##########################################################################################")
             for solution in solutions:
                 print(solution)
-            
+        
+        if verbose >= 1:
             print("\nCRITERIA OPTIONS ##########################################################################################\n")
             for i in range(len(self.criteria)):
                 print(f"{letters[i]}: {', '.join(list(set(solution.verificators[i].description for solution in solutions)))}")
 
-            print("\nSOLVING FOR OPTIMAL TREE... \n")
+            print("\nSOLVING FOR OPTIMAL TREE ########################################################################################## \n")
         
         #Build all possible decision trees; choose the one with the least absolute & average depth
         trees = treeList(self.criteria, solutions)
         trees.sort(key=lambda x: (round(x.score()[0], 2), round(x.score()[1], 2), round(x.score()[2], 2))) #Round due to floating point precision errors
 
-        if verbose >= 1:
-            print(f"Number of unique solutions: {n_uniques}")
-            print(f"Number of non-redundant solutions: {len(set(solution.value for solution in solutions))} ({', '.join(list(set(str(solution.value) for solution in solutions)))})")
-            print(f"{len(trees)} trees considered.")
+        print(f"Number of unique solutions: {n_uniques}")
+        print(f"Number of non-redundant solutions: {len(set(solution.value for solution in solutions))} ({', '.join(list(set(str(solution.value) for solution in solutions)))})")
+        print(f"{len(trees)} trees considered.")
             
         print("\nBest decision tree:")
         print(trees[0])
         print(f"Average: {trees[0].score()[0]:.2f} rounds, {trees[0].score()[1]:.2f} tests")
         
         return trees[0]
-
-
-        
-pb = Problem("test", [0, 1, 2, 3, 4])
-pb.solve(verbose = 3)
-
-#To solve: When test is false, value is removed from pool, despite the fact that it can still be used for remaining tests

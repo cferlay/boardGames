@@ -518,15 +518,15 @@ all_criteria.append(
         verificators = [
             Verificator(
                 description = "3 consecutive numbers are in ascending order (ex: 234)",
-                test = lambda x: set(int(str(x)[1]) - int(str(x)[0]), int(str(x)[2]) - int(str(x)[1])) == {1}
+                test = lambda x: set([int(str(x)[1]) - int(str(x)[0]), int(str(x)[2]) - int(str(x)[1])]) == {1}
             ),
             Verificator(
                 description = "2 consecutive numbers are in ascending order (ex: 233)",
-                test = lambda x: 1 in set(int(str(x)[1]) - int(str(x)[0]), int(str(x)[2]) - int(str(x)[1])) and len(set(int(str(x)[1]) - int(str(x)[0]), int(str(x)[2]) - int(str(x)[1]))) == 2
+                test = lambda x: 1 in set([int(str(x)[1]) - int(str(x)[0]), int(str(x)[2]) - int(str(x)[1])]) and len(set([int(str(x)[1]) - int(str(x)[0]), int(str(x)[2]) - int(str(x)[1])])) == 2
             ),
             Verificator(
                 description = "No sequence is in consecutive ascending order (ex: 135)",
-                test = lambda x: 1 not in set(int(str(x)[1]) - int(str(x)[0]), int(str(x)[2]) - int(str(x)[1]))
+                test = lambda x: 1 not in set([int(str(x)[1]) - int(str(x)[0]), int(str(x)[2]) - int(str(x)[1])])
             )
         ]
     )
@@ -540,15 +540,15 @@ all_criteria.append(
         verificators = [
             Verificator(
                 description = "No sequence of consecutive numbers in ascending or descending order (ex: 135, 531)",
-                test = lambda x: 1 not in set(abs(int(str(x)[1]) - int(str(x)[0])), abs(int(str(x)[2]) - int(str(x)[1])))
+                test = lambda x: 1 not in set([abs(int(str(x)[1]) - int(str(x)[0])), abs(int(str(x)[2]) - int(str(x)[1]))])
             ),
             Verificator(
                 description = "There is a sequence of exactly 2 consecutive numbers in ascending or descending order (ex: 235, 532)",
-                test = lambda x: 1 in set(abs(int(str(x)[1]) - int(str(x)[0])), abs(int(str(x)[2]) - int(str(x)[1]))) and len(set(int(str(x)[1]) - int(str(x)[0]), int(str(x)[2]) - int(str(x)[1]))) == 2
+                test = lambda x: 1 in set([abs(int(str(x)[1]) - int(str(x)[0])), abs(int(str(x)[2]) - int(str(x)[1]))]) and len(set([int(str(x)[1]) - int(str(x)[0]), int(str(x)[2]) - int(str(x)[1])])) == 2
             ),
             Verificator(
                 description = "There is a sequence of 3 consecutive numbers in ascending or descending order (ex: 234, 432)",
-                test = lambda x: 1 in set(abs(int(str(x)[1]) - int(str(x)[0])), abs(int(str(x)[2]) - int(str(x)[1]))) and len(set(int(str(x)[1]) - int(str(x)[0]), int(str(x)[2]) - int(str(x)[1]))) == 1
+                test = lambda x: 1 in set([abs(int(str(x)[1]) - int(str(x)[0])), abs(int(str(x)[2]) - int(str(x)[1]))]) and len(set([int(str(x)[1]) - int(str(x)[0]), int(str(x)[2]) - int(str(x)[1])])) == 1
             )
         ]
     )
